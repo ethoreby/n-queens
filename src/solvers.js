@@ -52,40 +52,46 @@ window.countNRooksSolutions = function(n) {
   var solutionCount = {};
   var solution = new Board({'n': n});
 
-
+debugger;
 
   var testSolutions = function (matrix, x, y, rooks) {
-    // debugger;
     var board = new Board(matrix);
-    if (y < n && x < n && (board.hasRowConflictAt(y) || board.hasColConflictAt(x))) {
-      return;
-    } else if (rooks === n) {
-      // solutionCount++;
-      var boardKey = _.flatten(board.rows()).join("");
-      solutionCount[boardKey] = board.rows();
-      return;
-    } else if (y >= n) {
-      return;
-    }
 
+// debugger;
     var trueCopy = _.map(board.rows(), function(row) {
       return row.slice();
     });
+
     board.togglePiece(y,x);
-    var modCopy = _.map(board.rows(), function(row) {
-      return row.slice();
-    });
+    var continueTest = true;
+
+    if(board.hasRowConflictAt(y) || board.hasColConflictAt(x)) {
+      continueTest = false;
+    }else if (rooks + 1 === n) {
+      var boardKey = _.flatten(board.rows()).join("");
+      solutionCount[boardKey] = board.rows();
+      continueTest = false;
+    }
+
     x++;
     if(x >= n) {
       x = 0;
       y++;
     }
-    testSolutions(modCopy, x, y, rooks + 1);
-    testSolutions(trueCopy, x, y, rooks);
+
+    if(y < n) {
+      if(continueTest) {
+        var modCopy = _.map(board.rows(), function(row) {
+          return row.slice();
+        });
+        testSolutions(modCopy, x, y, rooks + 1);
+      }
+      testSolutions(trueCopy, x, y, rooks);
+    }
   };
+
   testSolutions(solution.rows(), 0, 0, 0);
-  console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
-  console.dir(solutionCount);
+  console.log('Number of solutions for ' + n + ' rooks:', Object.keys(solutionCount).length);
   return Object.keys(solutionCount).length;
 };
 
