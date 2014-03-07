@@ -49,7 +49,6 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  debugger;
   var solutionCount = 0;
 
   var solution = new Board({'n': n});
@@ -96,32 +95,6 @@ window.countNRooksSolutions = function(n) {
 
     testSolutions(nilCopy, rooks);
     testSolutions(rookCopy, rooks + 1);
-
-    // var continueTest = true;
-
-    // if(hasConflicts(matrix)) {
-    //   continueTest = false;
-    // }else if (rooks + 1 === n) {
-
-    //   solutionCount++;
-    //   continueTest = false;
-    // }
-
-    // x++;
-    // if(x >= n) {
-    //   x = 0;
-    //   y++;
-    // }
-
-    // if(y < n) {
-    //   if(continueTest) {
-    //     var modCopy = _.map(board.rows(), function(row) {
-    //       return row.slice();
-    //     });
-    //     testSolutions(modCopy, x, y, rooks + 1);
-    //   }
-    //   testSolutions(trueCopy, x, y, rooks);
-    // }
   };
 
   testSolutions([], 0);
@@ -133,10 +106,26 @@ window.countNRooksSolutions = function(n) {
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
-  var solution = undefined; //fixme
+  var solution = new Board({'n': n});
+  var x = 0;
+  var y = 0;
+  var pieces = 0;
+  while(pieces < n && y >= n) {
+    solution.togglePiece(y, x);
+    pieces++;
+    if(solution.hasRowConflictAt(y) || solution.hasColConflictAt(x) || solution.hasMajorDiagonalConflictAt(solution._getFirstRowColumnIndexForMajorDiagonalOn(x)) || solution.hasMinorDiagonalConflictAt(solution._getFirstRowColumnIndexForMinorDiagonalOn(x))) {
+      solution.togglePiece(y, x);
+      pieces--;
+    }
+    x++;
+    if(x >= n) {
+      x = 0;
+      y++;
+    }
+  }
 
   console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
-  return solution;
+  return solution.rows();
 };
 
 
