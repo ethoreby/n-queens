@@ -133,45 +133,49 @@ window.findNQueensSolution = function(n) {
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
 
+// debugger;
+
   if(n === 0) {
     return 1;
   }
 
   var solutionCount = 0;
-  var colConf = window.createDefaultObject(0,n);
-  var majDiagConf = window.createDefaultObject(-1 * (n - 1), n);
-  var minDiagConf = window.createDefaultObject(0, 2 * (n-1) + 1);
+
+  var highestBit = Math.pow(2, (n-1));
 
   var testSolutions = function(row, colConf, majConf, minConf) {
 
-    if(row === n - 1) {
-      for(var j = 0; j < n; j++) {
-        if(colConf[j] && majConf[(row) - j] && minConf[(row) + j]) {
+    for (var i = n - 1; i >= 0; i--) {   //iterate through columns
+      var index = Math.pow(2, i);
+      var cConflict = !!(colConf & index);
+      var majConflict = !!(majConf & index);
+      var minConflict = !!(minConf & index);
+      if (!cConflict && !majConflict && !minConflict) {
+
+        if(row === n - 1) {
           solutionCount++;
           return;
         }
-      }
-    }
 
-    for (var i = 0; i < n; i++) {   //iterate through columns
-      if (colConf[i] && majConf[row - i] && minConf[row + i]) {
-        //copy and manipulate objs
-        var newColConf = _.extend({}, colConf);
-        delete newColConf[i];
-        var newMajConf = _.extend({}, majConf);
-        delete newMajConf[row - i];
-        var newMinConf = _.extend({}, minConf);
-        delete newMinConf[row + i];
-        //is solution?
-        //recurse
+        var increment = Math.pow(2, n- (n-i));
+        var newColConf = colConf + increment;
+        var newMinConf = minConf + increment;
+        newMinConf = newMinConf << 1;
+        if(newMinConf >= highestBit * 2) {
+          newMinConf -= (highestBit * 2);
+        }
+        var newMajConf = majConf + increment;
+        newMajConf = newMajConf >> 1;
+
         testSolutions(row + 1, newColConf, newMajConf, newMinConf);
       }
     }
 
   };
-
-  testSolutions(0, colConf, majDiagConf, minDiagConf);
+  var begin = Date.now();
+  testSolutions(0, 0, 0, 0);
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
+  console.log('time elapsed: ' + (Date.now() - begin));
   return solutionCount;
 };
 
